@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💧 Hydrate, Love</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Hydrate 💧" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky: #0ea5e9;
+      --sky-light: #bae6fd;
+      --sky-dark: #0369a1;
+      --foam: #f0f9ff;
+      --ink: #0c1a2e;
+      --muted: #64748b;
+      --glass: rgba(255,255,255,0.6);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(160deg, #e0f2fe 0%, #bae6fd 40%, #7dd3fc 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.25rem 4rem;
+      overflow-x: hidden;
+    }
+
+    /* Floating bubbles background */
+    .bubbles {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(110vh) scale(0.8); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 400px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeDown 0.7s ease both;
+    }
+    @keyframes fadeDown {
+      from { opacity:0; transform: translateY(-20px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .logo { font-size: 3.5rem; line-height: 1; margin-bottom: 0.3rem; }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: var(--sky-dark);
+      line-height: 1.1;
+    }
+    .tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      letter-spacing: 0.04em;
+    }
+
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 24px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 32px rgba(14,165,233,0.12);
+      animation: fadeUp 0.7s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(24px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
+
+    /* Water tracker */
+    .tracker-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--sky-dark);
+      margin-bottom: 1rem;
+    }
+
+    .glass-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .glass-btn {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.5);
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.1);
+    }
+    .glass-btn.filled {
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      box-shadow: 0 4px 14px rgba(14,165,233,0.35);
+      transform: scale(1.04);
+    }
+    .glass-btn:active { transform: scale(0.93); }
+
+    .progress-bar-wrap {
+      height: 8px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #0284c7);
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+    .progress-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: right;
+    }
+
+    /* Reminder controls */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--sky-dark);
+      margin-bottom: 0.9rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .toggle-label { font-size: 0.9rem; color: var(--ink); }
+    .toggle-sub   { font-size: 0.75rem; color: var(--muted); }
+
+    .toggle {
+      position: relative;
+      width: 52px; height: 28px;
+    }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: rgba(14,165,233,0.25);
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      left: 3px; top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--sky); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(24px); }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border: 1px solid rgba(14,165,233,0.25);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.6);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus { border-color: var(--sky); }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #38bdf8, #0369a1);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(14,165,233,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(14,165,233,0.3); }
+
+    /* Status banner */
+    .status {
+      text-align: center;
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: none;
+    }
+    .status.success { background: rgba(34,197,94,0.15); color: #15803d; display: block; }
+    .status.error   { background: rgba(239,68,68,0.12); color: #b91c1c; display: block; }
+    .status.info    { background: rgba(14,165,233,0.12); color: var(--sky-dark); display: block; }
+
+    /* Love note */
+    .love-note {
+      text-align: center;
+      padding: 1.25rem;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      color: var(--sky-dark);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .love-note span { font-size: 1.4rem; display: block; margin-bottom: 0.3rem; }
+
+    /* Next reminder chip */
+    .next-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(14,165,233,0.12);
+      color: var(--sky-dark);
+      border-radius: 99px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    #install-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.7);
+      border: 1.5px solid var(--sky);
+      color: var(--sky-dark);
+      border-radius: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: none;
+      transition: background 0.2s;
+    }
+    #install-btn:active { background: rgba(14,165,233,0.1); }
+  </style>
+</head>
+<body>
+
+<div class="bubbles" id="bubbles"></div>
+
+<div class="container">
+  <header>
+    <div class="logo">💧</div>
+    <h1>Hydrate, Love</h1>
+    <p class="tagline">Your personal water reminder, with care</p>
+  </header>
+
+  <!-- Water Tracker -->
+  <div class="card">
+    <div class="tracker-label">Today's glasses</div>
+    <div class="glass-grid" id="glasses"></div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0 / 8 glasses</div>
+  </div>
+
+  <!-- Reminder Setup -->
+  <div class="card">
+    <div class="section-title">Reminder settings</div>
+
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Hourly reminders</div>
+        <div class="toggle-sub">Notify every hour during the day</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="remind-toggle" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px">Start time</label>
+        <input type="time" id="start-time" value="08:00" />
+      </div>
+      <div>
+        <label style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px">End time</label>
+        <input type="time" id="end-time" value="22:00" />
+      </div>
+    </div>
+
+    <label style="font-size:0.78rem;color:var(--muted);display:block;margin-bottom:4px">Daily goal (glasses)</label>
+    <input type="number" id="goal-input" value="8" min="4" max="20" />
+
+    <div id="next-reminder-wrap" style="display:none">
+      <div class="next-chip">⏰ Next reminder: <span id="next-time">—</span></div>
+    </div>
+
+    <div class="status" id="status-msg"></div>
+
+    <button class="btn-primary" id="start-btn" onclick="startReminders()">
+      💧 Activate reminders
+    </button>
+    <button id="install-btn" onclick="installApp()">📲 Add to Home Screen</button>
+  </div>
+
+  <!-- Love note -->
+  <div class="card love-note">
+    <span>🩷</span>
+    "Staying hydrated is an act of self-love.<br>Drink up, beautiful."
+  </div>
+</div>
+
+<script>
+  // --- Bubbles ---
+  const bubbles = document.getElementById('bubbles');
+  for (let i = 0; i < 14; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 40 + 10;
+    b.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;animation-duration:${Math.random()*12+8}s;animation-delay:${Math.random()*10}s;`;
+    bubbles.appendChild(b);
+  }
+
+  // --- State ---
+  let glasses = parseInt(localStorage.getItem('glasses') || '0');
+  let lastReset = localStorage.getItem('lastReset') || '';
+  let reminderInterval = null;
+  const today = new Date().toDateString();
+  if (lastReset !== today) { glasses = 0; localStorage.setItem('glasses', 0); localStorage.setItem('lastReset', today); }
+
+  // --- Glass grid ---
+  function renderGlasses() {
+    const goal = parseInt(document.getElementById('goal-input').value) || 8;
+    const grid = document.getElementById('glasses');
+    grid.innerHTML = '';
+    for (let i = 0; i < goal; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'glass-btn' + (i < glasses ? ' filled' : '');
+      btn.innerHTML = i < glasses ? '💧' : '🫙';
+      btn.onclick = () => toggleGlass(i);
+      grid.appendChild(btn);
+    }
+    const pct = Math.min(100, Math.round(glasses / goal * 100));
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = `${glasses} / ${goal} glasses`;
+    localStorage.setItem('glasses', glasses);
+  }
+
+  function toggleGlass(i) {
+    const goal = parseInt(document.getElementById('goal-input').value) || 8;
+    if (i < glasses) { glasses = i; } else { glasses = i + 1; }
+    glasses = Math.max(0, Math.min(goal, glasses));
+    renderGlasses();
+  }
+
+  document.getElementById('goal-input').addEventListener('input', renderGlasses);
+  renderGlasses();
+
+  // --- Notifications ---
+  async function requestPermission() {
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    const perm = await Notification.requestPermission();
+    return perm === 'granted';
+  }
+
+  function showStatus(msg, type) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className = 'status ' + type;
+    setTimeout(() => el.className = 'status', 4000);
+  }
+
+  function updateNextChip() {
+    const wrap = document.getElementById('next-reminder-wrap');
+    const el = document.getElementById('next-time');
+    if (!reminderInterval) { wrap.style.display = 'none'; return; }
+    const now = new Date();
+    const next = new Date(now.getTime() + (60 - now.getMinutes()) * 60000);
+    next.setSeconds(0);
+    el.textContent = next.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    wrap.style.display = 'block';
+  }
+
+  const messages = [
+    "Time to hydrate, love! 💧",
+    "Don't forget your water! 🌊",
+    "A glass of water keeps you glowing ✨",
+    "Your body is asking for water 💙",
+    "Stay hydrated, beautiful! 🩷",
+    "Water break! You deserve it 💧",
+    "Sip sip! Time for some water 🫧",
+    "Hydration check! Drink up 💦"
+  ];
+
+  function sendReminder() {
+    const start = document.getElementById('start-time').value;
+    const end   = document.getElementById('end-time').value;
+    const now   = new Date();
+    const hhmm  = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    if (hhmm < start || hhmm > end) return; // outside window
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    if (Notification.permission === 'granted') {
+      new Notification('💧 Hydrate, Love', {
+        body: msg,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        vibrate: [200, 100, 200]
+      });
+    }
+  }
+
+  async function startReminders() {
+    const allowed = await requestPermission();
+    if (!allowed) {
+      showStatus("⚠️ Please allow notifications to receive reminders.", 'error');
+      return;
+    }
+    if (reminderInterval) clearInterval(reminderInterval);
+
+    // Fire every hour on the hour
+    const now = new Date();
+    const msUntilNextHour = (60 - now.getMinutes()) * 60000 - now.getSeconds() * 1000;
+
+    showStatus("✅ Reminders activated! First one in ~" + Math.round(msUntilNextHour/60000) + " min.", 'success');
+    document.getElementById('start-btn').textContent = '✅ Reminders active';
+
+    setTimeout(() => {
+      sendReminder();
+      reminderInterval = setInterval(sendReminder, 3600000);
+      updateNextChip();
+    }, msUntilNextHour);
+
+    updateNextChip();
+  }
+
+  document.getElementById('remind-toggle').addEventListener('change', function() {
+    if (!this.checked && reminderInterval) {
+      clearInterval(reminderInterval);
+      reminderInterval = null;
+      document.getElementById('start-btn').textContent = '💧 Activate reminders';
+      document.getElementById('next-reminder-wrap').style.display = 'none';
+      showStatus("Reminders paused.", 'info');
+    }
+  });
+
+  // --- PWA Install ---
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('install-btn').style.display = 'block';
+  });
+
+  function installApp() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; document.getElementById('install-btn').style.display='none'; });
+    } else {
+      showStatus("On iPhone: tap Share → Add to Home Screen 📲", 'info');
+    }
+  }
+
+  // --- Service Worker ---
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
