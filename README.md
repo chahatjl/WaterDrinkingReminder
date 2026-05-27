@@ -1,4 +1,4 @@
-# 💧 Hydrate, Love — Water Reminder PWA
+# 💧 Hydrate, — Water Reminder PWA
 
 A beautiful Progressive Web App that sends your fiancée hourly reminders to drink water.
 
